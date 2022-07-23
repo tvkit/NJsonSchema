@@ -34,7 +34,7 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
             _settings = settings;
 
             ClassName = typeName;
-            Properties = _schema.ActualProperties.Values
+            var props = _schema.ActualProperties.Values
                 .Where(p => !p.IsInheritanceDiscriminator)
                 .Select(property => new PropertyModel(this, property, _resolver, _settings))
                 .ToArray();
@@ -42,10 +42,13 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
             if (schema.InheritedSchema != null)
             {
                 BaseClass = new ClassTemplateModel(BaseClassName, settings, resolver, schema.InheritedSchema, rootObject);
+                var names = BaseClass.AllProperties.Select(p => p.Name).ToList();
+                Properties = props.Where(p => !names.Contains(p.Name)).ToArray();
                 AllProperties = Properties.Concat(BaseClass.AllProperties).ToArray();
             }
             else
             {
+                Properties = props;
                 AllProperties = Properties;
             }
         }

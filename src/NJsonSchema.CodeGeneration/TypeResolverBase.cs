@@ -55,7 +55,7 @@ namespace NJsonSchema.CodeGeneration
 
             if (!_generatedTypeNames.TryGetValue(schema, out var typeNames))
             {
-                var reservedTypeNames = new HashSet<string>(_generatedTypeNames.Values);
+                var reservedTypeNames = new HashSet<string>(); //_generatedTypeNames.Values);
                 typeNames = _settings.TypeNameGenerator.Generate(schema, typeNameHint, reservedTypeNames);
                 _generatedTypeNames[schema] = typeNames;
             }
