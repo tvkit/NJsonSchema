@@ -75,6 +75,9 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
              _schema.ActualTypeSchema.AdditionalPropertiesSchema != null)
             && BaseClass?.HasAdditionalPropertiesType != true; // if base class already has extension data array, we need to avoid it in the subclass
 
+        /// <summary>Gets a value indicating whether an additional properties type is available and needed.</summary>
+        public bool HasAdditionalPropertiesTypeX => false;
+
         /// <summary>Gets the type of the additional properties.</summary>
         public string AdditionalPropertiesType => HasAdditionalPropertiesType ? "object" : null; // TODO: Find a way to use typed dictionaries
         //public string AdditionalPropertiesType => HasAdditionalPropertiesType ? _resolver.Resolve(
