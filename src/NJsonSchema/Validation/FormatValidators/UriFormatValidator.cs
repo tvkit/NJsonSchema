@@ -2,12 +2,11 @@
 // <copyright file="UriFormatValidator.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
 using Newtonsoft.Json.Linq;
-using System;
 
 namespace NJsonSchema.Validation.FormatValidators
 {
@@ -26,8 +25,8 @@ namespace NJsonSchema.Validation.FormatValidators
         /// <returns>True if value is correct for given format, False - if not.</returns>
         public bool IsValid(string value, JTokenType tokenType)
         {
-            return tokenType == JTokenType.Uri
-                || Uri.TryCreate(value, UriKind.Absolute, out Uri uriResult);
+            return tokenType == JTokenType.Uri || 
+                Uri.TryCreate(value, UriKind.Absolute, out Uri? _);
         }
     }
 }

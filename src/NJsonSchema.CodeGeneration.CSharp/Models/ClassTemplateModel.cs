@@ -2,11 +2,10 @@
 // <copyright file="ClassTemplateModel.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
-using System.Collections.Generic;
 using System.Linq;
 using NJsonSchema.CodeGeneration.Models;
 
@@ -18,6 +17,8 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
         private readonly CSharpTypeResolver _resolver;
         private readonly JsonSchema _schema;
         private readonly CSharpGeneratorSettings _settings;
+        internal readonly List<PropertyModel> _properties;
+        private readonly List<PropertyModel> _allProperties;
 
         /// <summary>Initializes a new instance of the <see cref="ClassTemplateModel"/> class.</summary>
         /// <param name="typeName">Name of the type.</param>
@@ -34,27 +35,35 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
             _settings = settings;
 
             ClassName = typeName;
-            var props = _schema.ActualProperties.Values
-                .Where(p => !p.IsInheritanceDiscriminator)
-                .Select(property => new PropertyModel(this, property, _resolver, _settings))
-                .ToArray();
+
+            var actualProperties = _schema.ActualProperties;
+            _properties = new List<PropertyModel>(actualProperties.Count);
+            foreach (var property in actualProperties.Values)
+            {
+                if (!property.IsInheritanceDiscriminator)
+                {
+                    _properties.Add(new PropertyModel(this, property, _resolver, _settings));
+                }
+            }
 
             if (schema.InheritedSchema != null)
             {
-                BaseClass = new ClassTemplateModel(BaseClassName, settings, resolver, schema.InheritedSchema, rootObject);
-                var names = BaseClass.AllProperties.Select(p => p.Name).ToList();
-                Properties = props.Where(p => !names.Contains(p.Name)).ToArray();
-                AllProperties = Properties.Concat(BaseClass.AllProperties).ToArray();
+                BaseClass = new ClassTemplateModel(BaseClassName!, settings, resolver, schema.InheritedSchema, rootObject);
+                _allProperties = new List<PropertyModel>(_properties.Count + BaseClass._allProperties.Count);
+                _allProperties.AddRange(BaseClass._allProperties);
+                _allProperties.AddRange(_properties);
             }
             else
             {
-                Properties = props;
-                AllProperties = Properties;
+                _allProperties = _properties;
             }
         }
 
         /// <summary>Gets a value indicating whether to use System.Text.Json</summary>
         public bool UseSystemTextJson => _settings.JsonLibrary == CSharpJsonLibrary.SystemTextJson;
+
+        /// <summary>Gets a value indicating whether to use System.Text.Json polymorphic serialization</summary>
+        public bool UseSystemTextJsonPolymorphicSerialization => _settings.JsonPolymorphicSerializationStyle == CSharpJsonPolymorphicSerializationStyle.SystemTextJson;
 
         /// <summary>Gets or sets the class name.</summary>
         public override string ClassName { get; }
@@ -65,39 +74,45 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
         /// <summary>Gets a value indicating whether the C#8 nullable reference types are enabled for this file.</summary>
         public bool GenerateNullableReferenceTypes => _settings.GenerateNullableReferenceTypes;
 
-        /// <summary>Gets a value indicating whether an additional properties type is available and needed.</summary>
+        /// <summary>Gets a value indicating whether an additional properties type is available.</summary>
         public bool HasAdditionalPropertiesType =>
+            HasAdditionalPropertiesTypeInBaseClass || // if the base class has them, inheritance dictates that this class will have them to
             !_schema.IsDictionary &&
             !_schema.ActualTypeSchema.IsDictionary &&
             !_schema.IsArray &&
             !_schema.ActualTypeSchema.IsArray &&
             (_schema.ActualTypeSchema.AllowAdditionalProperties ||
-             _schema.ActualTypeSchema.AdditionalPropertiesSchema != null)
-            && BaseClass?.HasAdditionalPropertiesType != true; // if base class already has extension data array, we need to avoid it in the subclass
+             _schema.ActualTypeSchema.AdditionalPropertiesSchema != null); 
+        
+        /// <summary>Gets a value indicating whether an additional properties type is available in the base class.</summary>
+        public bool HasAdditionalPropertiesTypeInBaseClass => BaseClass?.HasAdditionalPropertiesType ?? false;
+
+        /// <summary> Gets a value indicating if the "Additional properties" property should be generated. </summary>
+        public bool GenerateAdditionalPropertiesProperty => HasAdditionalPropertiesType && !HasAdditionalPropertiesTypeInBaseClass;
 
         /// <summary>Gets a value indicating whether an additional properties type is available and needed.</summary>
         public bool HasAdditionalPropertiesTypeX => false;
 
         /// <summary>Gets the type of the additional properties.</summary>
-        public string AdditionalPropertiesType => HasAdditionalPropertiesType ? "object" : null; // TODO: Find a way to use typed dictionaries
+        public string? AdditionalPropertiesType => HasAdditionalPropertiesType ? "object" : null; // TODO: Find a way to use typed dictionaries
         //public string AdditionalPropertiesType => HasAdditionalPropertiesType ? _resolver.Resolve(
         //    _schema.AdditionalPropertiesSchema,
         //    _schema.AdditionalPropertiesSchema.IsNullable(_settings.SchemaType),
         //    string.Empty) : null;
 
         /// <summary>Gets the property models.</summary>
-        public IEnumerable<PropertyModel> Properties { get; }
+        public IEnumerable<PropertyModel> Properties => _properties;
 
         /// <summary>Gets the property models with inherited properties.</summary>
-        public IEnumerable<PropertyModel> AllProperties { get; }
+        public IEnumerable<PropertyModel> AllProperties => _allProperties;
 
         /// <summary>Gets a value indicating whether the class has description.</summary>
-        public bool HasDescription => !(_schema is JsonSchemaProperty) &&
+        public bool HasDescription => _schema is not JsonSchemaProperty &&
             (!string.IsNullOrEmpty(_schema.Description) ||
              !string.IsNullOrEmpty(_schema.ActualTypeSchema.Description));
 
         /// <summary>Gets the description.</summary>
-        public string Description => !string.IsNullOrEmpty(_schema.Description) ?
+        public string? Description => !string.IsNullOrEmpty(_schema.Description) ?
             _schema.Description : _schema.ActualTypeSchema.Description;
 
         /// <summary>Gets a value indicating whether the class style is INPC.</summary>
@@ -109,6 +124,9 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
         /// <summary>Gets a value indicating whether the class style is Record.</summary>
         public bool RenderRecord => _settings.ClassStyle == CSharpClassStyle.Record;
 
+        /// <summary>Gets the class type.</summary>
+        public string ClassType => _settings.GenerateNativeRecords ? "record" : "class";
+
         /// <summary>Gets a value indicating whether to generate records as C# 9.0 records.</summary>
         public bool GenerateNativeRecords => _settings.GenerateNativeRecords;
 
@@ -119,7 +137,7 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
         public bool HasDiscriminator => !string.IsNullOrEmpty(_schema.ActualDiscriminator);
 
         /// <summary>Gets the discriminator property name.</summary>
-        public string Discriminator => _schema.ActualDiscriminator;
+        public string? Discriminator => _schema.ActualDiscriminator;
 
         /// <summary>Gets a value indicating whether this class represents a tuple.</summary>
         public bool IsTuple => _schema.ActualTypeSchema.IsTuple;
@@ -132,23 +150,32 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
         /// <summary>Gets a value indicating whether the class has a parent class.</summary>
         public bool HasInheritance => _schema.InheritedTypeSchema != null;
 
+        /// <summary>Gets a value indicating whether the constructor parameters should be sorted.</summary>
+        public bool SortConstructorParameters => _settings.SortConstructorParameters;
+
         /// <summary>Gets the base class name.</summary>
-        public string BaseClassName => HasInheritance ? _resolver.Resolve(_schema.InheritedTypeSchema, false, string.Empty, false)
+        public string? BaseClassName => HasInheritance ? _resolver.Resolve(_schema.InheritedTypeSchema!, false, string.Empty, false)
                 .Replace(_settings.ArrayType + "<", _settings.ArrayBaseType + "<")
                 .Replace(_settings.DictionaryType + "<", _settings.DictionaryBaseType + "<") : null;
 
         /// <summary>Gets the base class model.</summary>
-        public ClassTemplateModel BaseClass { get; }
+        public ClassTemplateModel? BaseClass { get; }
 
         /// <summary>Gets a value indicating whether the class inherits from exception.</summary>
         public bool InheritsExceptionSchema => _resolver.ExceptionSchema != null &&
                                                _schema?.InheritsSchema(_resolver.ExceptionSchema) == true;
 
         /// <summary>Gets a value indicating whether to use the DateFormatConverter.</summary>
-        public bool UseDateFormatConverter => _settings.DateType.StartsWith("System.Date");
+        public bool UseDateFormatConverter => _settings.DateType.StartsWith("System.DateTime", StringComparison.Ordinal);
 
         /// <summary>Gets or sets the access modifier of generated classes and interfaces.</summary>
         public string TypeAccessModifier => _settings.TypeAccessModifier;
+
+        /// <summary>Gets a value indicating whether to use the C# 11 "required" keyword.</summary>
+        public bool UseRequiredKeyword => _settings.UseRequiredKeyword;
+        
+        /// <summary> Gets the read accessor of properties ('set' | 'init').</summary>
+        public string WriteAccessor => _settings.WriteAccessor;
 
         /// <summary>Gets the access modifier of property setters (default: '').</summary>
         public string PropertySetterAccessModifier => !string.IsNullOrEmpty(_settings.PropertySetterAccessModifier) ? _settings.PropertySetterAccessModifier + " " : "";
@@ -160,12 +187,13 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
         public string JsonConvertersArrayCode => CSharpJsonSerializerGenerator.GenerateJsonConvertersArrayCode(_settings, null);
 
         /// <summary>Gets a value indicating whether the class is deprecated.</summary>
-        public bool IsDeprecated => _schema.IsDeprecated;
+        public bool IsDeprecated => _schema.IsDeprecated || _schema.AllOf.Any(s => s.IsDeprecated);
 
         /// <summary>Gets a value indicating whether the class has a deprecated message.</summary>
-        public bool HasDeprecatedMessage => !string.IsNullOrEmpty(_schema.DeprecatedMessage);
+        public bool HasDeprecatedMessage => !string.IsNullOrEmpty(DeprecatedMessage);
 
         /// <summary>Gets the deprecated message.</summary>
-        public string DeprecatedMessage => _schema.DeprecatedMessage;
+        public string? DeprecatedMessage => _schema.DeprecatedMessage ??
+            _schema.AllOf.Select(s => s.DeprecatedMessage).FirstOrDefault(m => !string.IsNullOrEmpty(m));
     }
 }

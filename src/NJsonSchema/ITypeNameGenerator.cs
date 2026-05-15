@@ -2,11 +2,9 @@
 // <copyright file="ITypeNameGenerator.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
-
-using System.Collections.Generic;
 
 namespace NJsonSchema
 {
@@ -18,6 +16,6 @@ namespace NJsonSchema
         /// <param name="typeNameHint">The type name hint (the property name or definition key).</param>
         /// <param name="reservedTypeNames">The reserved type names.</param>
         /// <returns>The new name.</returns>
-        string Generate(JsonSchema schema, string typeNameHint, IEnumerable<string> reservedTypeNames);
+        string Generate(JsonSchema schema, string? typeNameHint, IEnumerable<string> reservedTypeNames);
     }
 }

@@ -2,11 +2,10 @@
 // <copyright file="GeneratorBase.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -52,7 +51,7 @@ namespace NJsonSchema.CodeGeneration
         /// <param name="schema">The schema</param>
         /// <param name="typeNameHint">The type name hint.</param>
         /// <returns>The code.</returns>
-        public IEnumerable<CodeArtifact> GenerateTypes(JsonSchema schema, string typeNameHint)
+        public IEnumerable<CodeArtifact> GenerateTypes(JsonSchema schema, string? typeNameHint)
         {
             _resolver.Resolve(schema, false, typeNameHint); // register root type
             return GenerateTypes();
@@ -60,7 +59,7 @@ namespace NJsonSchema.CodeGeneration
 
         /// <summary>Generates the the whole file containing all needed types.</summary>
         /// <returns>The code</returns>
-        public string GenerateFile(JsonSchema schema, string typeNameHint)
+        public string GenerateFile(JsonSchema schema, string? typeNameHint)
         {
             var artifacts = GenerateTypes(schema, typeNameHint);
             return GenerateFile(artifacts);

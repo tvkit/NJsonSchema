@@ -2,12 +2,9 @@
 // <copyright file="PropertyModelBase.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
-
-using System;
-using System.Collections.Generic;
 
 namespace NJsonSchema.CodeGeneration.Models
 {
@@ -48,7 +45,7 @@ namespace NJsonSchema.CodeGeneration.Models
         public bool HasDefaultValue => !string.IsNullOrEmpty(DefaultValue);
 
         /// <summary>Gets the default value as string.</summary>
-        public string DefaultValue => ValueGenerator.GetDefaultValue(_property,
+        public string? DefaultValue => ValueGenerator.GetDefaultValue(_property,
             _property.IsNullable(_settings.SchemaType), Type, _property.Name, _settings.GenerateDefaultValues, _typeResolver);
 
         /// <summary>Gets the name of the property.</summary>
@@ -64,20 +61,20 @@ namespace NJsonSchema.CodeGeneration.Models
         public bool IsStringEnumArray =>
             _property.ActualTypeSchema.IsArray &&
             _property.ActualTypeSchema.Item != null &&
-            _property.ActualTypeSchema.Item.ActualSchema.IsEnumeration &&
-            _property.ActualTypeSchema.Item.ActualSchema.Type.IsString();
+            _property.ActualTypeSchema.Item.ActualTypeSchema.IsEnumeration &&
+            _property.ActualTypeSchema.Item.ActualTypeSchema.Type.IsString();
 
         /// <summary>Gets the property extension data.</summary>
-        public IDictionary<string, object> ExtensionData => _property.ExtensionData;
+        public IDictionary<string, object?>? ExtensionData => _property.ExtensionData;
 
         /// <summary>Gets the JSON Schema format property.</summary>
-        public string Format => _property.ActualSchema.Format;
+        public string? Format => _property.ActualSchema.Format;
 
         /// <summary>Gets the type name hint for the property.</summary>
         protected string GetTypeNameHint()
         {
             var propertyName = PropertyName;
-            if (_property.IsEnumeration == false)
+            if (!_property.IsEnumeration)
             {
                 return propertyName;
             }

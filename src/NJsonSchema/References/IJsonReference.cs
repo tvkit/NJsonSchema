@@ -2,7 +2,7 @@
 // <copyright file="IJsonReference.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
@@ -20,6 +20,6 @@ namespace NJsonSchema.References
 
         /// <summary>Gets the parent object which may be the root. </summary>
         [JsonIgnore]
-        object PossibleRoot { get; }
+        object? PossibleRoot { get; }
     }
 }

@@ -2,11 +2,9 @@
 // <copyright file="JsonSchemaResolver.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
-
-using System;
 
 namespace NJsonSchema
 {
@@ -35,7 +33,7 @@ namespace NJsonSchema
         /// <param name="typeNameHint">The type name hint.</param>
         /// <exception cref="ArgumentNullException"><paramref name="schema"/> is <see langword="null"/></exception>
         /// <exception cref="ArgumentException">The root schema cannot be appended.</exception>
-        public virtual void AppendSchema(JsonSchema schema, string typeNameHint)
+        public virtual void AppendSchema(JsonSchema schema, string? typeNameHint)
         {
             if (schema == null)
             {

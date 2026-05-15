@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using NJsonSchema.CodeGeneration.TypeScript;
-using Xunit;
+﻿using NJsonSchema.CodeGeneration.Tests;
 
 namespace NJsonSchema.CodeGeneration.TypeScript.Tests
 {
@@ -15,54 +13,57 @@ namespace NJsonSchema.CodeGeneration.TypeScript.Tests
 		'myTimeSpan': { 'type': 'string', 'format': 'time-span' }
 	}
 }";
-
-        [Fact]
-        public async Task When_date_handling_is_string_then_string_property_is_generated_in_class()
+        
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task When_date_handling_is_string_then_string_property_is_generated_in_class(bool convertDateToLocalTimezone)
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Class,
-                DateTimeType = TypeScriptDateTimeType.String
+                DateTimeType = TypeScriptDateTimeType.String,
+                ConvertDateToLocalTimezone = convertDateToLocalTimezone
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myDate: string", code);
-            Assert.Contains("this.myDate = _data[\"myDate\"];", code);
-            Assert.Contains("data[\"myDate\"] = this.myDate;", code);
+            // Assert
+            await VerifyHelper.Verify(code).UseParameters(convertDateToLocalTimezone);
+            TypeScriptCompiler.AssertCompile(code);
         }
 
-        [Fact]
-        public async Task When_date_handling_is_moment_then_moment_property_is_generated_in_class()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task When_date_handling_is_moment_then_moment_property_is_generated_in_class(bool convertDateToLocalTimezone)
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Class,
-                DateTimeType = TypeScriptDateTimeType.MomentJS
+                DateTimeType = TypeScriptDateTimeType.MomentJS,
+                ConvertDateToLocalTimezone = convertDateToLocalTimezone
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myDate: moment.Moment", code);
-            Assert.Contains("this.myDate = _data[\"myDate\"] ? moment(_data[\"myDate\"].toString()) : <any>undefined;", code);
-            Assert.Contains("data[\"myDate\"] = this.myDate ? this.myDate.format('YYYY-MM-DD') : <any>undefined;", code);
+            // Assert
+            await VerifyHelper.Verify(code).UseParameters(convertDateToLocalTimezone);
         }
 
         [Fact]
         public async Task When_date_handling_is_moment_then_duration_property_is_generated_in_class()
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Class,
@@ -70,39 +71,38 @@ namespace NJsonSchema.CodeGeneration.TypeScript.Tests
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myTimeSpan: moment.Duration", code);
-            Assert.Contains("this.myTimeSpan = _data[\"myTimeSpan\"] ? moment.duration(_data[\"myTimeSpan\"].toString()) : <any>undefined;", code);
-            Assert.Contains("data[\"myTimeSpan\"] = this.myTimeSpan ? this.myTimeSpan.format('d.hh:mm:ss.SS', { trim: false }) : <any>undefined;", code);
+            // Assert
+            await VerifyHelper.Verify(code);
         }
 
-        [Fact]
-        public async Task When_date_handling_is_luxon_then_datetime_property_is_generated_in_class()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task When_date_handling_is_luxon_then_datetime_property_is_generated_in_class(bool convertDateToLocalTimezone)
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Class,
-                DateTimeType = TypeScriptDateTimeType.Luxon
+                DateTimeType = TypeScriptDateTimeType.Luxon,
+                ConvertDateToLocalTimezone = convertDateToLocalTimezone
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myDate: DateTime", code);
-            Assert.Contains("this.myDate = _data[\"myDate\"] ? DateTime.fromISO(_data[\"myDate\"].toString()) : <any>undefined;", code);
-            Assert.Contains("data[\"myDate\"] = this.myDate ? this.myDate.toFormat('yyyy-MM-dd') : <any>undefined;", code);
+            // Assert
+            await VerifyHelper.Verify(code).UseParameters(convertDateToLocalTimezone);
         }
 
         [Fact]
         public async Task When_date_handling_is_luxon_then_duration_property_is_generated_in_class()
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Class,
@@ -110,39 +110,38 @@ namespace NJsonSchema.CodeGeneration.TypeScript.Tests
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myTimeSpan: Duration", code);
-            Assert.Contains("this.myTimeSpan = _data[\"myTimeSpan\"] ? Duration.fromISO(_data[\"myTimeSpan\"].toString()) : <any>undefined;", code);
-            Assert.Contains("data[\"myTimeSpan\"] = this.myTimeSpan ? this.myTimeSpan.toString() : <any>undefined;", code);
+            // Assert
+            await VerifyHelper.Verify(code);
         }
 
-        [Fact]
-        public async Task When_date_handling_is_dayjs_then_dayjs_property_is_generated_in_class()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task When_date_handling_is_dayjs_then_dayjs_property_is_generated_in_class(bool convertDateToLocalTimezone)
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Class,
-                DateTimeType = TypeScriptDateTimeType.DayJS
+                DateTimeType = TypeScriptDateTimeType.DayJS,
+                ConvertDateToLocalTimezone = convertDateToLocalTimezone
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myDate: dayjs.Dayjs", code);
-            Assert.Contains("this.myDate = _data[\"myDate\"] ? dayjs(_data[\"myDate\"].toString()) : <any>undefined;", code);
-            Assert.Contains("data[\"myDate\"] = this.myDate ? this.myDate.format('YYYY-MM-DD') : <any>undefined;", code);
+            // Assert
+            await VerifyHelper.Verify(code).UseParameters(convertDateToLocalTimezone);
         }
 
         [Fact]
         public async Task When_date_handling_is_date_then_date_property_is_generated_in_class()
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Class,
@@ -150,40 +149,59 @@ namespace NJsonSchema.CodeGeneration.TypeScript.Tests
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myDate: Date", code);
-            Assert.Contains("this.myDate = _data[\"myDate\"] ? new Date(_data[\"myDate\"].toString()) : <any>undefined;", code);
-            Assert.Contains("data[\"myDate\"] = this.myDate ? formatDate(this.myDate) : <any>undefined;", code);
-            Assert.Contains("function formatDate(", code);
+            // Assert
+            await VerifyHelper.Verify(code);
+            TypeScriptCompiler.AssertCompile(code);
         }
-
+        
         [Fact]
-        public async Task When_date_handling_is_offset_moment_then_date_property_is_generated_in_class()
+        public async Task When_date_handling_is_date_then_date_property_is_generated_in_class_with_local_timezone_conversion()
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Class,
-                DateTimeType = TypeScriptDateTimeType.OffsetMomentJS
+                //DateTimeType = TypeScriptDateTimeType.Date,
+                ConvertDateToLocalTimezone = true
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myDate: moment.Moment", code);
-            Assert.Contains("this.myDate = _data[\"myDate\"] ? moment.parseZone(_data[\"myDate\"].toString()) : <any>undefined;", code);
-            Assert.Contains("data[\"myDate\"] = this.myDate ? this.myDate.format('YYYY-MM-DD') : <any>undefined;", code);
+            // Assert
+            await VerifyHelper.Verify(code);
+            TypeScriptCompiler.AssertCompile(code);
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task When_date_handling_is_offset_moment_then_date_property_is_generated_in_class(bool convertDateToLocalTimezone)
+        {
+            // Arrange
+            var schema = await JsonSchema.FromJsonAsync(Json);
+
+            // Act
+            var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
+            {
+                TypeStyle = TypeScriptTypeStyle.Class,
+                DateTimeType = TypeScriptDateTimeType.OffsetMomentJS,
+                ConvertDateToLocalTimezone = convertDateToLocalTimezone
+            });
+            var code = generator.GenerateFile("MyClass");
+
+            // Assert
+            await VerifyHelper.Verify(code).UseParameters(convertDateToLocalTimezone);
         }
 
         [Fact]
         public async Task When_date_handling_is_date_then_date_property_is_generated_in_interface()
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Interface,
@@ -191,17 +209,18 @@ namespace NJsonSchema.CodeGeneration.TypeScript.Tests
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myDate: Date;", code);
+            // Assert
+            await VerifyHelper.Verify(code);
+            TypeScriptCompiler.AssertCompile(code);
         }
 
         [Fact]
         public async Task When_date_handling_is_moment_then_moment_property_is_generated_in_interface()
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Interface,
@@ -209,18 +228,17 @@ namespace NJsonSchema.CodeGeneration.TypeScript.Tests
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myDate: moment.Moment;", code);
+            // Assert
+            await VerifyHelper.Verify(code);
         }
-
 
         [Fact]
         public async Task When_date_handling_is_string_then_string_property_is_generated_in_interface()
         {
-            //// Arrange
+            // Arrange
             var schema = await JsonSchema.FromJsonAsync(Json);
 
-            //// Act
+            // Act
             var generator = new TypeScriptGenerator(schema, new TypeScriptGeneratorSettings
             {
                 TypeStyle = TypeScriptTypeStyle.Interface,
@@ -228,8 +246,9 @@ namespace NJsonSchema.CodeGeneration.TypeScript.Tests
             });
             var code = generator.GenerateFile("MyClass");
 
-            //// Assert
-            Assert.Contains("myDate: string;", code);
+            // Assert
+            await VerifyHelper.Verify(code);
+            TypeScriptCompiler.AssertCompile(code);
         }
     }
 }

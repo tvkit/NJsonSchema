@@ -2,7 +2,7 @@
 // <copyright file="IDocumentPathProvider.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
@@ -15,6 +15,6 @@ namespace NJsonSchema
     {
         /// <summary>Gets the document path (URI or file path).</summary>
         [JsonIgnore]
-        string DocumentPath { get; set; }
+        string? DocumentPath { get; set; }
     }
 }

@@ -2,7 +2,7 @@
 // <copyright file="IEnumNameGenerator.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
@@ -17,6 +17,6 @@ namespace NJsonSchema.CodeGeneration
         /// <param name="value">The value.</param>
         /// <param name="schema">The schema.</param>
         /// <returns>The enumeration name.</returns>
-        string Generate(int index, string name, object value, JsonSchema schema);
+        string Generate(int index, string? name, object? value, JsonSchema schema);
     }
 }

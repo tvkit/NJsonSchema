@@ -2,7 +2,7 @@
 // <copyright file="JsonSchemaVisitorBase.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
-// <license>https://github.com/RicoSuter/NJsonSchema/blob/master/LICENSE.md</license>
+// SPDX-License-Identifier: MIT
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
@@ -18,14 +18,14 @@ namespace NJsonSchema.Visitors
         /// <param name="path">The path.</param>
         /// <param name="typeNameHint">The type name hint.</param>
         /// <returns>The task.</returns>
-        protected abstract JsonSchema VisitSchema(JsonSchema schema, string path, string typeNameHint);
+        protected abstract JsonSchema VisitSchema(JsonSchema schema, string path, string? typeNameHint);
 
         /// <summary>Called when a <see cref="IJsonReference"/> is visited.</summary>
         /// <param name="reference">The visited schema.</param>
         /// <param name="path">The path.</param>
         /// <param name="typeNameHint">The type name hint.</param>
         /// <returns>The task.</returns>
-        protected override IJsonReference VisitJsonReference(IJsonReference reference, string path, string typeNameHint)
+        protected override IJsonReference VisitJsonReference(IJsonReference reference, string path, string? typeNameHint)
         {
             if (reference is JsonSchema schema)
             {
