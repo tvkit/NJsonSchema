@@ -37,24 +37,30 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
             ClassName = typeName;
 
             var actualProperties = _schema.ActualProperties;
-            _properties = new List<PropertyModel>(actualProperties.Count);
+            //_properties = new List<PropertyModel>(actualProperties.Count);
+            var props = new List<PropertyModel>();
             foreach (var property in actualProperties.Values)
             {
                 if (!property.IsInheritanceDiscriminator)
                 {
-                    _properties.Add(new PropertyModel(this, property, _resolver, _settings));
+                    /*_properties*/ props.Add(new PropertyModel(this, property, _resolver, _settings));
                 }
             }
 
             if (schema.InheritedSchema != null)
             {
                 BaseClass = new ClassTemplateModel(BaseClassName!, settings, resolver, schema.InheritedSchema, rootObject);
+
+                var baseNames = BaseClass.AllProperties.Select(p => p.Name).ToList();
+                _properties = props.Where(p => !baseNames.Contains(p.Name)).ToList();
+
                 _allProperties = new List<PropertyModel>(_properties.Count + BaseClass._allProperties.Count);
                 _allProperties.AddRange(BaseClass._allProperties);
                 _allProperties.AddRange(_properties);
             }
             else
             {
+                _properties = props;
                 _allProperties = _properties;
             }
         }
@@ -90,8 +96,8 @@ namespace NJsonSchema.CodeGeneration.CSharp.Models
         /// <summary> Gets a value indicating if the "Additional properties" property should be generated. </summary>
         public bool GenerateAdditionalPropertiesProperty => HasAdditionalPropertiesType && !HasAdditionalPropertiesTypeInBaseClass;
 
-        /// <summary>Gets a value indicating whether an additional properties type is available and needed.</summary>
-        public bool HasAdditionalPropertiesTypeX => false;
+        ///// <summary>Gets a value indicating whether an additional properties type is available and needed.</summary>
+        //public bool HasAdditionalPropertiesTypeX => false;
 
         /// <summary>Gets the type of the additional properties.</summary>
         public string? AdditionalPropertiesType => HasAdditionalPropertiesType ? "object" : null; // TODO: Find a way to use typed dictionaries

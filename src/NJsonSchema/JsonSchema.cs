@@ -391,7 +391,7 @@ namespace NJsonSchema
         /// Specifies name of object
         /// </summary>
         [JsonIgnore]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>Gets or sets the title. </summary>
         [JsonProperty("title", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, Order = -100 + 3)]

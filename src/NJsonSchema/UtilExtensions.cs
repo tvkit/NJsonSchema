@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
 
@@ -18,7 +19,7 @@ namespace NJsonSchema
 
                 var link = match.Groups[1].Value;
                 var parts = link.Split('.');
-                for (var i = 0; i < parts.Length; i++) parts[i] = parts[i][0].ToString().ToUpper() + parts[i].Substring(1);
+                for (var i = 0; i < parts.Length; i++) parts[i] = parts[i][0].ToString().ToUpper(CultureInfo.CurrentCulture) + parts[i][1..];
                 link = string.Join(".", parts);
 
                 var cref =  $"<see cref=\"{link}\"/>";

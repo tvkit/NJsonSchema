@@ -16,10 +16,10 @@ namespace NJsonSchema
     {
         private object? _parent;
 
-        /// <summary>Gets or sets the name of the property. </summary>
-        [JsonIgnore]
+        ///// <summary>Gets or sets the name of the property. </summary>
+        //[JsonIgnore]
 #pragma warning disable CS8618
-        public string Name { get; internal set; }
+        //public string Name { get; internal set; }
 #pragma warning restore CS8618
 
         /// <summary>Gets the parent schema of this property schema. </summary>

@@ -57,7 +57,7 @@ namespace NJsonSchema.CodeGeneration
             {
                 typeNames = _settings.TypeNameGenerator.Generate(schema, typeNameHint, _reservedTypeNames);
                 _generatedTypeNames[schema] = typeNames;
-                _reservedTypeNames.Add(typeNames);
+                //_reservedTypeNames.Add(typeNames);
             }
 
             return typeNames;
