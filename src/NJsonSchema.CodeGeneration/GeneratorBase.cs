@@ -45,7 +45,7 @@ namespace NJsonSchema.CodeGeneration
         public string GenerateFile()
         {
             var schema = (JsonSchema)RootObject;
-            return GenerateFile(schema, schema.Title != null && Regex.IsMatch(schema.Title, "^[a-zA-Z0-9_]*$") ? schema.Title : null);
+            return GenerateFile(schema, _settings.UseSchemaTitle && schema.Title != null && Regex.IsMatch(schema.Title, "^[a-zA-Z0-9_]*$") ? schema.Title : null);
         }
 
         /// <summary>Generates the type from the schema and all types from the resolver.</summary>

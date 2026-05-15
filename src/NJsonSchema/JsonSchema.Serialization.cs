@@ -497,6 +497,7 @@ namespace NJsonSchema
                     }
                     else
                     {
+                        pair.Value.Name = pair.Key;
                         pair.Value.Parent = this;
                     }
                 }

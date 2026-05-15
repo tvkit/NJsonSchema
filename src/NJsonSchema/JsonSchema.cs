@@ -68,6 +68,11 @@ namespace NJsonSchema
             }
         }
 
+        /// <summary>
+        /// Determines if schema title can be used for type name - defaults true
+        /// </summary>
+        public static bool UseSchemaTitle { get; set; } = true;
+
         /// <summary>Creates a schema which matches any data.</summary>
         /// <returns>The any schema.</returns>
         public static JsonSchema CreateAnySchema()
@@ -425,13 +430,19 @@ namespace NJsonSchema
         [JsonProperty("id", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, Order = -100 + 2)]
         public string Id { get; set; }
 
+        /// <summary>
+        /// Specifies name of object
+        /// </summary>
+        [JsonIgnore]
+        public string Name { get; set; }
+
         /// <summary>Gets or sets the title. </summary>
         [JsonProperty("title", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, Order = -100 + 3)]
         public string Title { get; set; }
 
         /// <summary>Gets a value indicating whether the schema title can be used as type name.</summary>
         [JsonIgnore]
-        public bool HasTypeNameTitle => !string.IsNullOrEmpty(Title) && Regex.IsMatch(Title, "^[a-zA-Z0-9_]*$");
+        public bool HasTypeNameTitle => UseSchemaTitle && !string.IsNullOrEmpty(Title) && Regex.IsMatch(Title, "^[a-zA-Z0-9_]*$");
 
         /// <summary>Gets or sets the description. </summary>
         [JsonProperty("description", DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]

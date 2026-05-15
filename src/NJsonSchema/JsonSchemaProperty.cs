@@ -16,9 +16,9 @@ namespace NJsonSchema
     {
         private object _parent;
 
-        /// <summary>Gets or sets the name of the property. </summary>
-        [JsonIgnore]
-        public string Name { get; internal set; }
+        ///// <summary>Gets or sets the name of the property. </summary>
+        //[JsonIgnore]
+        //public string Name { get; internal set; }
 
         /// <summary>Gets the parent schema of this property schema. </summary>
         [JsonIgnore]

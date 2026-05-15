@@ -277,7 +277,8 @@ namespace NJsonSchema
 
             // TODO: Support more markdown features here
             var xml = new XText(input).ToString();
-            return Regex.Replace(xml, @"^( *)/// ", m => m.Groups[1] + "/// <br/>", RegexOptions.Multiline);
+            var doc = UtilExtensions.NetDoc(xml);
+            return Regex.Replace(doc, @"^( *)/// ", m => m.Groups[1] + "/// <br/>", RegexOptions.Multiline);
         }
 
         private static string CreateTabString(int tabCount)
